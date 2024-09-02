@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import argparse
+from functools import partial
 import json
 import os
 from pathlib import Path
@@ -92,6 +93,7 @@ def main():
     print(tokenizer)
 
     # map
+    map_messages_to_text_ = partial(map_messages_to_text, tokenizer=tokenizer)
     train_dataset = train_dataset.map(
         map_messages_to_text,
         cache_file_name=(cache_dir / "train_dataset.cache").as_posix(),
