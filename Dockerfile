@@ -9,5 +9,3 @@ COPY . .
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip3 install --upgrade -r /data/tianxing/PycharmProjects/OpenUnsloth/requirements.txt
-
-CMD ["python3", "run_llm_proxy_server.py"]
