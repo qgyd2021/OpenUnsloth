@@ -1,0 +1,14 @@
+
+.git/
+.idea/
+
+**/flagged/
+**/log/
+**/logs/
+**/__pycache__/
+
+#conf/
+/dotenv/
+/examples/
+/temp/
+/data/
