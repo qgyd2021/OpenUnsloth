@@ -101,16 +101,24 @@ def main():
         train_dataset = dataset["train"]
         valid_dataset = dataset["test"]
 
-
     train_file = data_dir / "train.jsonl"
     valid_file = data_dir / "valid.jsonl"
 
     for output_file, sub_dataset in zip([train_file, valid_file], [train_dataset, valid_dataset]):
         with open(output_file.as_posix(), "w", encoding="utf-8") as f:
             for example in sub_dataset:
+                messages = [
+                    {
+                        "role": "user",
+                        "content": example["question"],
+                    },
+                    {
+                        "role": "assistant",
+                        "content": example["answer"],
+                    }
+                ]
                 row = {
-                    "prompt": example["question"],
-                    "response": example["answer"]
+                    "messages": messages,
                 }
                 row = json.dumps(row, ensure_ascii=False)
                 f.write("{}\n".format(row))
