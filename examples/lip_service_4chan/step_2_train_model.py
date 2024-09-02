@@ -10,7 +10,9 @@ import sys
 pwd = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(pwd, "../../"))
 
-from datasets import load_dataset, concatenate_datasets
+from datasets import load_dataset
+from transformers import TrainingArguments
+from trl import SFTTrainer, SFTConfig
 from unsloth import FastLanguageModel
 from unsloth import is_bfloat16_supported
 
@@ -29,6 +31,11 @@ def get_args():
     parser.add_argument(
         "--data_dir",
         default="data_dir/",
+        type=str
+    )
+    parser.add_argument(
+        "--cache_dir",
+        default="cache_dir/",
         type=str
     )
 
@@ -55,6 +62,10 @@ def map_messages_to_text(sample: dict, tokenizer):
 def main():
     args = get_args()
 
+    cache_dir = Path(args.cache_dir)
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    data_dir = Path(args.data_dir)
+
     # dataset
     train_dataset = load_dataset("json", data_files={"train": args.train_file,}, split="train")
     valid_dataset = load_dataset("json", data_files={"valid": args.valid_file,}, split="valid")
@@ -68,6 +79,7 @@ def main():
     for sample in valid_dataset.take(3):
         messages = sample["messages"]
         print(f"\tprompt: {messages[0]['content']}, \tresponse: {messages[1]['content']}")
+    print("\n")
 
     # model
     model, tokenizer = FastLanguageModel.from_pretrained(
@@ -80,8 +92,23 @@ def main():
     print(tokenizer)
 
     # map
-    train_dataset = train_dataset.map(map_messages_to_text)
-    valid_dataset = valid_dataset.map(map_messages_to_text)
+    train_dataset = train_dataset.map(
+        map_messages_to_text,
+        cache_file_name=(cache_dir / "train_dataset.cache").as_posix(),
+    )
+    valid_dataset = valid_dataset.map(
+        map_messages_to_text,
+        cache_file_name=(cache_dir / "valid_dataset.cache").as_posix(),
+    )
+    print(f"mapped train_dataset examples: ")
+    for sample in train_dataset.take(3):
+        text = sample["text"]
+        print(f"\ttext: {text}")
+    print(f"mapped valid_dataset examples: ")
+    for sample in valid_dataset.take(3):
+        text = sample["text"]
+        print(f"\ttext: {text}")
+    print("\n")
 
     model = FastLanguageModel.get_peft_model(
         model,
@@ -99,6 +126,28 @@ def main():
         use_rslora=False,
         loftq_config=None,
     )
+
+    # train
+    trainer = SFTTrainer(
+        model=model,
+        train_dataset=train_dataset,
+        dataset_text_field="text",
+        max_seq_length=args.max_seq_length,
+        tokenizer=tokenizer,
+        args=SFTConfig(
+            per_device_train_batch_size=2,
+            gradient_accumulation_steps=4,
+            warmup_steps=10,
+            max_steps=60,
+            fp16=not is_bfloat16_supported(),
+            bf16=is_bfloat16_supported(),
+            logging_steps=1,
+            output_dir="outputs",
+            optim="adamw_8bit",
+            seed=3407,
+        ),
+    )
+    trainer.train()
 
     return
 
