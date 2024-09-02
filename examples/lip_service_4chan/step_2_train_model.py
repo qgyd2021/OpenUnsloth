@@ -5,6 +5,10 @@ import json
 import os
 from pathlib import Path
 import platform
+import sys
+
+pwd = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(os.path.join(pwd, "../../"))
 
 from datasets import load_dataset, concatenate_datasets
 from unsloth import FastLanguageModel
