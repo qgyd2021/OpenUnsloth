@@ -6,6 +6,18 @@
 # >>> uname -m
 # x86_64
 
+# cat /etc/*release
+#PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"
+#NAME="Debian GNU/Linux"
+#VERSION_ID="12"
+#VERSION="12 (bookworm)"
+#VERSION_CODENAME=bookworm
+#ID=debian
+#HOME_URL="https://www.debian.org/"
+#SUPPORT_URL="https://www.debian.org/support"
+#BUG_REPORT_URL="https://bugs.debian.org/"
+
+
 
 #cuda驱动就像普通的软件一样, 可以安装多个.
 
@@ -76,6 +88,10 @@ echo "system_version: ${system_version}";
 
 
 if [ ${system_version} = "centos" ]; then
+  # whereis libxml2.so.2
+  yum install -y libxml2 libxml2-devel
+  yum install -y gcc g++
+
   #runfile(local)
   wget https://developer.download.nvidia.com/compute/cuda/11.7.0/local_installers/cuda_11.7.0_515.43.04_linux.run
   sudo sh cuda_11.7.0_515.43.04_linux.run --override
@@ -91,6 +107,24 @@ if [ ${system_version} = "centos" ]; then
 
   #export PATH=$PATH:/usr/local/cuda/bin
   #export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64
+
+  cat ~/.bashrc
+  echo "PATH=$PATH:/usr/local/cuda/bin" >> /root/.bashrc
+  echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64" >> /root/.bashrc
+  source ~/.bashrc
+
+  #查看cuda版本
+  nvcc -V
+
+if [ ${system_version} = "ubuntu" ]; then
+  apt-get install -y libxml2 libxml2-dev
+  apt-get install -y gcc g++
+
+  wget https://developer.download.nvidia.com/compute/cuda/11.7.0/local_installers/cuda_11.7.0_515.43.04_linux.run
+  sudo sh cuda_11.7.0_515.43.04_linux.run --override
+
+  rm -rf /usr/local/cuda
+  ln -snf /usr/local/cuda-11.7 /usr/local/cuda
 
   cat ~/.bashrc
   echo "PATH=$PATH:/usr/local/cuda/bin" >> /root/.bashrc
