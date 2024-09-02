@@ -16,7 +16,9 @@ docker run -itd \
 --name open_unsloth \
 --network host \
 --gpus all \
-python:3.12-slim /bin/bash
+python:3.11-slim /bin/bash
+
+docker build -t open_unsloth:v20240902_1055 .
 
 查看GPU
 nvidia-smi
