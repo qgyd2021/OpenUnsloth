@@ -95,11 +95,11 @@ def main():
     # map
     map_messages_to_text_ = partial(map_messages_to_text, tokenizer=tokenizer)
     train_dataset = train_dataset.map(
-        map_messages_to_text,
+        map_messages_to_text_,
         cache_file_name=(cache_dir / "train_dataset.cache").as_posix(),
     )
     valid_dataset = valid_dataset.map(
-        map_messages_to_text,
+        map_messages_to_text_,
         cache_file_name=(cache_dir / "valid_dataset.cache").as_posix(),
     )
     print(f"mapped train_dataset examples: ")
