@@ -9,6 +9,6 @@
 
 #conf/
 /dotenv/
-/examples/
+#/examples/
 /temp/
 /data/
