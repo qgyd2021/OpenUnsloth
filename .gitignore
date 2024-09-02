@@ -2,6 +2,7 @@
 .git/
 .idea/
 
+**/data_dir/
 **/flagged/
 **/log/
 **/logs/
@@ -10,5 +11,6 @@
 #conf/
 /dotenv/
 #/examples/
+/hub_datasets/
 /temp/
 /data/

@@ -20,22 +20,7 @@ python:3.11-slim /bin/bash
 
 
 
-docker build -t open_unsloth:v20240902_1344 .
-
-docker run -itd \
---name open_unsloth \
---network host \
---gpus all \
---device /dev/nvidia0:/dev/nvidia0 \
---device /dev/nvidiactl:/dev/nvidiactl \
---device /dev/nvidia-uvm:/dev/nvidia-uvm \
--v /usr/local/nvidia:/usr/local/nvidia \
--v /usr/sbin/modprobe:/usr/sbin/modprobe \
--v /usr/sbin/rmmod:/usr/sbin/rmmod \
--v /data/tianxing/PycharmProjects/OpenUnsloth/data:/data/tianxing/PycharmProjects/OpenUnsloth/data \
---privileged \
-open_unsloth:v20240902_1344
-
+docker build -t open_unsloth:v20240902_1633 .
 
 docker run -itd \
 --name open_unsloth \
@@ -43,7 +28,7 @@ docker run -itd \
 --gpus all \
 --privileged \
 -v /data/tianxing/PycharmProjects/OpenUnsloth/data:/data/tianxing/PycharmProjects/OpenUnsloth/data \
-open_unsloth:v20240902_1344
+open_unsloth:v20240902_1633
 
 
 

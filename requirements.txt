@@ -11,5 +11,5 @@ torch==2.4.0
 transformers==4.44.2
 triton==3.0.0
 trl==0.10.1
-unsloth==2024.8
+unsloth[cu121-torch240] @ git+https://github.com/unslothai/unsloth.git
 xformers==0.0.27.post2
