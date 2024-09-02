@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # https://www.5axxw.com/questions/simple/umiecs
-
+# bash scripts/install_conda.sh
 
 # params:
 system_version="centos";
@@ -41,14 +41,18 @@ echo "system_version: ${system_version}";
 
 
 if [ ${system_version} = "centos" ]; then
-  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+  wget -c https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 
+  # /root/miniconda3
+  # conda config --set auto_activate_base false
   bash Miniconda3-latest-Linux-x86_64.sh
 
-  /usr/local/miniconda3/bin/conda --version
+  /root/miniconda3/bin/conda --version
+  #/usr/local/miniconda3/bin/conda --version
 
   cat ~/.bashrc
-  echo "PATH=$PATH:/usr/local/miniconda3/bin" >> /root/.bashrc
+  echo "PATH=$PATH:/root/miniconda3/bin" >> /root/.bashrc
+  #echo "PATH=$PATH:/usr/local/miniconda3/bin" >> /root/.bashrc
   source ~/.bashrc
 
   conda --version

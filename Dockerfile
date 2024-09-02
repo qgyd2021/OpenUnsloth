@@ -1,4 +1,4 @@
-FROM python3.12-slim
+FROM python3.11-slim
 
 RUN apt-get update
 RUN apt-get install -y bzip2 git lrzsz wget vim git-lfs

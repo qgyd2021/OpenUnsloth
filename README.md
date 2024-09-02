@@ -12,7 +12,15 @@ https://github.com/unslothai/unsloth
 
 ```text
 
-docker run -itd --gpus all python:3.12-slim /bin/bash
+docker run -itd \
+--name open_unsloth \
+--network host \
+--gpus all \
+python:3.12-slim /bin/bash
+
+查看GPU
+nvidia-smi
+watch -n 1 -d nvidia-smi
 
 ```
 
@@ -20,12 +28,12 @@ docker run -itd --gpus all python:3.12-slim /bin/bash
 ### 创建环境
 
 ```text
-conda create --name unsloth_env \
+conda create --name open_unsloth \
     python=3.11 \
     pytorch-cuda=12.1 \
     pytorch cudatoolkit xformers -c pytorch -c nvidia -c xformers \
     -y
-conda activate unsloth_env
+conda activate open_unsloth
 
 pip install "unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git"
 pip install --no-deps trl peft accelerate bitsandbytes
