@@ -13,6 +13,7 @@ sys.path.append(os.path.join(pwd, "../../"))
 
 from datasets import load_dataset
 from transformers.trainer_callback import EarlyStoppingCallback
+from transformers.trainer_utils import EvalPrediction
 from trl import SFTTrainer, SFTConfig
 from unsloth import FastLanguageModel
 from unsloth import is_bfloat16_supported
@@ -80,9 +81,15 @@ def main():
         max_seq_length=args.max_seq_length,
         dtype=None,
         load_in_4bit=args.load_in_4bit,
+        chat_template="{{bos_token}}{% for message in messages %}{% if loop.first and messages[0]['role'] != 'system' %}{{ '<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n' }}{% endif %}{{'<|im_start|>' + message['role'] + '\n' + message['content'] + '<|im_end|>' + '\n'}}{% endfor %}{% if add_generation_prompt %}{{ '<|im_start|>assistant\n' }}{% endif %}"
     )
     print(f"model: \n{model}\n")
     print(f"tokenizer: \n{tokenizer}\n")
+
+    # index of choices
+    for token in ["A", "B", "C", "D", "E"]:
+        idx = tokenizer.tokenize("A")
+        print(f"token: {token}, index: {idx}")
 
     # map
     map_messages_to_text_ = partial(map_messages_to_text, tokenizer=tokenizer)
@@ -121,6 +128,13 @@ def main():
         loftq_config=None,
     )
 
+    def compute_metrics(eval_prediction: EvalPrediction):
+        predictions = eval_prediction.predictions
+        label_ids = eval_prediction.label_ids
+        print(f"predictions: {predictions}")
+        print(f"label_ids: {label_ids}")
+        return {}
+
     callbacks = [
         EarlyStoppingCallback(early_stopping_patience=5)
     ]
@@ -133,7 +147,7 @@ def main():
         dataset_text_field="text",
         max_seq_length=args.max_seq_length,
         tokenizer=tokenizer,
-        compute_metrics=None,
+        compute_metrics=compute_metrics,
         callbacks=callbacks,
         args=SFTConfig(
             output_dir=args.output_dir,
