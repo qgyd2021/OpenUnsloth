@@ -55,6 +55,7 @@ def main():
             "content": args.text,
         }],
         add_generation_prompt=True,
+        tokenize=False,
     )
     print(f"prompt: {text}")
 
