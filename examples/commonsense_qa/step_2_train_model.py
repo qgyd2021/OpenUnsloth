@@ -82,13 +82,16 @@ def main():
         dtype=None,
         load_in_4bit=args.load_in_4bit,
     )
-    tokenizer.chat_template = "{{bos_token}}{% for message in messages %}{% if loop.first and messages[0]['role'] != 'system' %}{{ '<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n' }}{% endif %}{{'<|im_start|>' + message['role'] + '\n' + message['content'] + '<|im_end|>' + '\n'}}{% endfor %}{% if add_generation_prompt %}{{ '<|im_start|>assistant\n' }}{% endif %}"
+
+    chat_template = "{% if not add_generation_prompt is defined %}{% set add_generation_prompt = false %}{% endif %}{% set loop_messages = messages %}{% for message in loop_messages %}{% set content = '<|start_header_id|>' + message['role'] + '<|end_header_id|>\n\n'+ message['content'] | trim + '<|eot_id|>' %}{% if loop.index0 == 0 %}{% set content = bos_token + content %}{% endif %}{{ content }}{% endfor %}{% if add_generation_prompt %}{{ '<|start_header_id|>assistant<|end_header_id|>\n\n' }}{% endif %}",
+
+    tokenizer.chat_template = chat_template
     print(f"model: \n{model}\n")
     print(f"tokenizer: \n{tokenizer}\n")
 
     # index of choices
     for token in ["A", "B", "C", "D", "E"]:
-        idx = tokenizer.tokenize("A")
+        idx = tokenizer.__call__(token)
         print(f"token: {token}, index: {idx}")
 
     # map
@@ -154,10 +157,10 @@ def main():
 
             eval_strategy="steps",
 
-            per_device_train_batch_size=32,
-            per_device_eval_batch_size=32,
-            gradient_accumulation_steps=2,
-            eval_accumulation_steps=2,
+            per_device_train_batch_size=16,
+            per_device_eval_batch_size=16,
+            gradient_accumulation_steps=4,
+            eval_accumulation_steps=4,
             learning_rate=5e-5,
             max_steps=10000,
             warmup_steps=10,
