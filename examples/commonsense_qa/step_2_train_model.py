@@ -23,23 +23,15 @@ from project_settings import project_path
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--train_file", default="data_dir/train.jsonl", type=str)
-    parser.add_argument("--valid_file", default="data_dir/valid.jsonl", type=str)
+    parser.add_argument("--valid_file", default="data_dir/validation.jsonl", type=str)
 
     parser.add_argument("--model_name", default="unsloth/Meta-Llama-3.1-8B-bnb-4bit", type=str)
     parser.add_argument("--max_seq_length", default=2048, type=int)
     parser.add_argument("--load_in_4bit", action="store_true", default=True)
 
-    parser.add_argument(
-        "--data_dir",
-        default="data_dir/",
-        type=str
-    )
-    parser.add_argument(
-        "--cache_dir",
-        default="cache_dir/",
-        type=str
-    )
-
+    parser.add_argument("--data_dir", default="data_dir/", type=str)
+    parser.add_argument("--cache_dir", default="cache_dir/", type=str)
+    parser.add_argument("--output_dir", default="output_dir/", type=str)
     parser.add_argument(
         "--num_workers",
         default=None if platform.system() == "Windows" else os.cpu_count() // 2,
@@ -144,7 +136,7 @@ def main():
         compute_metrics=None,
         callbacks=callbacks,
         args=SFTConfig(
-            output_dir="outputs",
+            output_dir=args.output_dir,
 
             eval_strategy="steps",
 
