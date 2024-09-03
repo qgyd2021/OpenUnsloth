@@ -12,7 +12,7 @@ pwd = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(pwd, "../../"))
 
 from datasets import load_dataset
-from transformers import TrainingArguments
+from transformers.trainer_callback import EarlyStoppingCallback
 from trl import SFTTrainer, SFTConfig
 from unsloth import FastLanguageModel
 from unsloth import is_bfloat16_supported
@@ -89,8 +89,8 @@ def main():
         dtype=None,
         load_in_4bit=args.load_in_4bit,
     )
-    print(model)
-    print(tokenizer)
+    print(f"model: \n{model}\n")
+    print(f"tokenizer: \n{tokenizer}\n")
 
     # map
     map_messages_to_text_ = partial(map_messages_to_text, tokenizer=tokenizer)
@@ -129,24 +129,42 @@ def main():
         loftq_config=None,
     )
 
+    callbacks = [
+        EarlyStoppingCallback(early_stopping_patience=5)
+    ]
+
     # train
     trainer = SFTTrainer(
         model=model,
         train_dataset=train_dataset,
+        eval_dataset=valid_dataset,
         dataset_text_field="text",
         max_seq_length=args.max_seq_length,
         tokenizer=tokenizer,
+        callbacks=callbacks,
         args=SFTConfig(
+            output_dir="outputs",
+
+            eval_strategy="steps",
+
             per_device_train_batch_size=2,
             gradient_accumulation_steps=4,
-            warmup_steps=10,
             max_steps=60,
+            warmup_steps=10,
+            logging_steps=1,
+
+            save_strategy="steps",
+            save_steps=500,
+            save_total_limit=10,
+            save_safetensors=True,
+
+            seed=3407,
             fp16=not is_bfloat16_supported(),
             bf16=is_bfloat16_supported(),
-            logging_steps=1,
-            output_dir="outputs",
+
+            eval_steps=500,
+
             optim="adamw_8bit",
-            seed=3407,
         ),
     )
     trainer.train()
