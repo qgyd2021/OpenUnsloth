@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 https://www.kaggle.com/code/danielhanchen/kaggle-llama-3-1-8b-unsloth-notebook
+
+python3 step_3_inter_model.py --model_name outputs/checkpoint-10000
+
 """
 import argparse
 from functools import partial
