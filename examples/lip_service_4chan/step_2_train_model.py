@@ -149,7 +149,7 @@ def main():
 
             per_device_train_batch_size=2,
             gradient_accumulation_steps=4,
-            max_steps=60,
+            max_steps=10000,
             warmup_steps=10,
             logging_steps=1,
 
