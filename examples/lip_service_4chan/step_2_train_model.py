@@ -147,14 +147,14 @@ def main():
 
             eval_strategy="steps",
 
-            per_device_train_batch_size=2,
+            per_device_train_batch_size=16,
             gradient_accumulation_steps=4,
             max_steps=10000,
             warmup_steps=10,
-            logging_steps=1,
+            logging_steps=200,
 
             save_strategy="steps",
-            save_steps=500,
+            save_steps=200,
             save_total_limit=10,
             save_safetensors=True,
 
@@ -162,7 +162,7 @@ def main():
             fp16=not is_bfloat16_supported(),
             bf16=is_bfloat16_supported(),
 
-            eval_steps=500,
+            eval_steps=200,
 
             load_best_model_at_end=True,
             optim="adamw_8bit",
