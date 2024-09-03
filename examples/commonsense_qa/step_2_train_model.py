@@ -26,7 +26,7 @@ def get_args():
     parser.add_argument("--train_file", default="data_dir/train.jsonl", type=str)
     parser.add_argument("--valid_file", default="data_dir/validation.jsonl", type=str)
 
-    parser.add_argument("--model_name", default="unsloth/Meta-Llama-3.1-8B-bnb-4bit", type=str)
+    parser.add_argument("--model_name", default="unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit", type=str)
     parser.add_argument("--max_seq_length", default=2048, type=int)
     parser.add_argument("--load_in_4bit", action="store_true", default=True)
 
@@ -82,10 +82,6 @@ def main():
         dtype=None,
         load_in_4bit=args.load_in_4bit,
     )
-
-    chat_template = "{% if not add_generation_prompt is defined %}{% set add_generation_prompt = false %}{% endif %}{% set loop_messages = messages %}{% for message in loop_messages %}{% set content = '<|start_header_id|>' + message['role'] + '<|end_header_id|>\n\n'+ message['content'] | trim + '<|eot_id|>' %}{% if loop.index0 == 0 %}{% set content = bos_token + content %}{% endif %}{{ content }}{% endfor %}{% if add_generation_prompt %}{{ '<|start_header_id|>assistant<|end_header_id|>\n\n' }}{% endif %}"
-
-    tokenizer.chat_template = chat_template
     print(f"model: \n{model}\n")
     print(f"tokenizer: \n{tokenizer}\n")
 
