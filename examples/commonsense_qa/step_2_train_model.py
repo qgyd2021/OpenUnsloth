@@ -162,12 +162,12 @@ def main():
             gradient_accumulation_steps=4,
             eval_accumulation_steps=4,
             learning_rate=5e-5,
-            max_steps=10000,
+            max_steps=1000,
             warmup_steps=10,
-            logging_steps=200,
+            logging_steps=20,
 
             save_strategy="steps",
-            save_steps=200,
+            save_steps=20,
             save_total_limit=10,
             save_safetensors=True,
 
@@ -175,7 +175,7 @@ def main():
             fp16=not is_bfloat16_supported(),
             bf16=is_bfloat16_supported(),
 
-            eval_steps=200,
+            eval_steps=20,
 
             load_best_model_at_end=True,
             optim="adamw_8bit",
