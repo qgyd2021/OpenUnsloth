@@ -164,6 +164,7 @@ def main():
 
             eval_steps=500,
 
+            load_best_model_at_end=True,
             optim="adamw_8bit",
         ),
     )
