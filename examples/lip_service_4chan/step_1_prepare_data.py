@@ -11,6 +11,7 @@ pwd = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(pwd, "../../"))
 
 from datasets import load_dataset, concatenate_datasets
+from tqdm import tqdm
 
 from project_settings import project_path
 
@@ -110,7 +111,7 @@ def main():
 
     for output_file, sub_dataset in zip([train_file, valid_file], [train_dataset, valid_dataset]):
         with open(output_file.as_posix(), "w", encoding="utf-8") as f:
-            for example in sub_dataset:
+            for example in tqdm(sub_dataset):
                 messages = [
                     {
                         "role": "user",

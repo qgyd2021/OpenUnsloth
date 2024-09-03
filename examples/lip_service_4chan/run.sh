@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# sh run.sh --stage 0 --stop_stage 0 --system_version centos
+# bash run.sh --stage 1 --stop_stage 2 --system_version ubuntu
 
 # params
 system_version="windows";
@@ -46,12 +46,11 @@ $verbose && echo "system_version: ${system_version}"
 work_dir="$(pwd)"
 data_dir="${work_dir}/data_dir"
 cache_dir="${file_dir}/cache_dir"
-
-final_model_dir="${work_dir}/../../trained_models/${final_model_name}";
+output_dir="${file_dir}/output_dir"
 
 mkdir -p "${data_dir}"
 mkdir -p "${cache_dir}"
-mkdir -p "${final_model_dir}"
+mkdir -p "${output_dir}"
 
 export PYTHONPATH="${work_dir}/../.."
 
@@ -77,6 +76,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
   cd "${work_dir}" || exit 1;
 
    python3 step_2_train_model.py \
-   --model_name "${pretrained_model_supplier}/${pretrained_model_name}"
+   --model_name "${pretrained_model_supplier}/${pretrained_model_name}" \
+   --output_dir "${output_dir}"
 
 fi
