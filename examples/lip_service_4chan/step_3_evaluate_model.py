@@ -40,8 +40,9 @@ def get_args():
 def main():
     args = get_args()
 
+    print(f"loading model: {args.model_name}")
     model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name="lora_model",
+        model_name=args.model_name,
         max_seq_length=args.max_seq_length,
         dtype=None,
         load_in_4bit=args.load_in_4bit,
