@@ -147,8 +147,8 @@ def main():
 
             eval_strategy="steps",
 
-            per_device_train_batch_size=16,
-            gradient_accumulation_steps=4,
+            per_device_train_batch_size=32,
+            gradient_accumulation_steps=2,
             max_steps=10000,
             warmup_steps=10,
             logging_steps=200,
