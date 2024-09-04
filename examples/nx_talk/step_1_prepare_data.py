@@ -40,8 +40,11 @@ def main():
     data_dir.mkdir(parents=True, exist_ok=True)
 
     # dataset
+    data = list()
     with open(args.talk_list_file, "r", encoding="utf-8") as f:
-        data = json.load(f)
+        for row in f:
+            row = json.loads(row)
+            data.append(row)
 
     print(f"dataset samples count: {len(data)}")
 
