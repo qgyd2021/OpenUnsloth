@@ -49,7 +49,7 @@ def main():
     )
     FastLanguageModel.for_inference(model)
 
-    with open(args.valid_file, "r", encoding="utf-8") as fin, open(args.evalation_file, 'w', encoding="utf-8") as fout:
+    with open(args.valid_file, "r", encoding="utf-8") as fin, open(args.output_file, 'w', encoding="utf-8") as fout:
         for row in fin:
             row = json.loads(row)
             messages = row["messages"]
