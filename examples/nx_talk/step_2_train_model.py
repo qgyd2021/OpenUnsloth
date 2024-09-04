@@ -77,8 +77,8 @@ def main():
     valid_file = data_dir / args.valid_file
 
     # dataset
-    train_dataset = load_dataset("json", data_files={"train": train_file,}, split="train")
-    valid_dataset = load_dataset("json", data_files={"valid": valid_file,}, split="valid")
+    train_dataset = load_dataset("json", data_files={"train": train_file.as_posix(),}, split="train")
+    valid_dataset = load_dataset("json", data_files={"valid": valid_file.as_posix(),}, split="valid")
     print(f"train_dataset samples count: {len(train_dataset)}\n")
     print(f"train_dataset examples: \n")
     for sample in train_dataset.take(3):
