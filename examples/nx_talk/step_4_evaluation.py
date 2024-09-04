@@ -68,7 +68,7 @@ def main():
     FastLanguageModel.for_inference(model)
     model: Qwen2Model = model
 
-    with open(valid_file, "r", encoding="utf-8") as fin, open(output_file, 'w', encoding="utf-8") as fout:
+    with open(valid_file.as_posix(), "r", encoding="utf-8") as fin, open(output_file.as_posix(), 'w', encoding="utf-8") as fout:
         for row in fin:
             row = json.loads(row)
             messages: List[dict] = row["messages"]
