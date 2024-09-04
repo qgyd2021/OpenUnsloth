@@ -4,7 +4,17 @@
 https://www.kaggle.com/code/danielhanchen/kaggle-llama-3-1-8b-unsloth-notebook
 https://huggingface.co/docs/transformers/v4.36.1/zh/llm_tutorial
 
-python3 step_4_evaluation.py --model_name output_dir/checkpoint-320
+python3 step_4_evaluation.py --model_name unsloth/Qwen2-1.5B-Instruct-bnb-4bit --output_file data_dir/evaluation-epoch-0-talk-Qwen2-1.5B-Instruct.jsonl
+python3 step_4_evaluation.py --model_name Qwen2-1.5B-Instruct-talk-model/checkpoint-100 --output_file data_dir/evaluation-epoch-5-talk-Qwen2-1.5B-Instruct.jsonl
+python3 step_4_evaluation.py --model_name Qwen2-1.5B-Instruct-talk-model/checkpoint-200 --output_file data_dir/evaluation-epoch-10-talk-Qwen2-1.5B-Instruct.jsonl
+
+python3 step_4_evaluation.py --model_name unsloth/Qwen2-0.5B-Instruct-bnb-4bit --output_file data_dir/evaluation-epoch-0-talk-Qwen2-0.5B-Instruct.jsonl
+python3 step_4_evaluation.py --model_name Qwen2-0.5B-Instruct-talk-model/checkpoint-100 --output_file data_dir/evaluation-epoch-5-talk-Qwen2-0.5B-Instruct.jsonl
+python3 step_4_evaluation.py --model_name Qwen2-0.5B-Instruct-talk-model/checkpoint-200 --output_file data_dir/evaluation-epoch-10-talk-Qwen2-0.5B-Instruct.jsonl
+
+python3 step_4_evaluation.py --model_name unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit --output_file data_dir/evaluation-epoch-0-talk-Meta-Llama-3.1-8B-Instruct.jsonl
+python3 step_4_evaluation.py --model_name Meta-Llama-3.1-8B-Instruct-talk-model/checkpoint-100 --output_file data_dir/evaluation-epoch-5-talk-Meta-Llama-3.1-8B-Instruct.jsonl
+python3 step_4_evaluation.py --model_name Meta-Llama-3.1-8B-Instruct-talk-model/checkpoint-200 --output_file data_dir/evaluation-epoch-10-talk-Meta-Llama-3.1-8B-Instruct.jsonl
 
 """
 import argparse

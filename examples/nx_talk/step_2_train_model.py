@@ -1,5 +1,14 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+"""
+rm -rf cache_dir
+
+python3 step_2_train_model.py --model_name unsloth/Qwen2-1.5B-Instruct-bnb-4bit --output_dir Qwen2-1.5B-Instruct-talk-model --data_dir talk-data_dir
+python3 step_2_train_model.py --model_name unsloth/Qwen2-0.5B-Instruct-bnb-4bit --output_dir Qwen2-0.5B-Instruct-talk-model --data_dir talk-data_dir
+python3 step_2_train_model.py --model_name unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit --output_dir Meta-Llama-3.1-8B-Instruct-talk-model --data_dir talk-data_dir
+
+
+"""
 import argparse
 from functools import partial
 import json
@@ -22,19 +31,19 @@ from project_settings import project_path
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--train_file", default="data_dir/train.jsonl", type=str)
-    parser.add_argument("--valid_file", default="data_dir/valid.jsonl", type=str)
+    parser.add_argument("--train_file", default="train.jsonl", type=str)
+    parser.add_argument("--valid_file", default="valid.jsonl", type=str)
 
     parser.add_argument("--model_name", default="unsloth/Qwen2-1.5B-Instruct-bnb-4bit", type=str)
     parser.add_argument("--max_seq_length", default=2048, type=int)
     parser.add_argument("--load_in_4bit", action="store_true", default=True)
 
-    parser.add_argument("--max_steps", default=2000, type=int)
-    parser.add_argument("--eval_steps", default=20, type=int)
-
+    parser.add_argument("--num_train_epochs", default=10, type=int)
+    parser.add_argument("--per_device_train_batch_size", default=8, type=int)
+    parser.add_argument("--gradient_accumulation_steps", default=2, type=int)
 
     parser.add_argument("--data_dir", default="data_dir/", type=str)
-    parser.add_argument("--cache_dir", default="cache_dir/", type=str)
+    parser.add_argument("--cache_dir", default=None, type=str)
     parser.add_argument("--output_dir", default="output_dir/", type=str)
     parser.add_argument(
         "--num_workers",
@@ -58,13 +67,18 @@ def map_messages_to_text(sample: dict, tokenizer):
 def main():
     args = get_args()
 
-    cache_dir = Path(args.cache_dir)
-    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_dir = None
+    if args.cache_dir is not None:
+        cache_dir = Path(args.cache_dir)
+        cache_dir.mkdir(parents=True, exist_ok=True)
     data_dir = Path(args.data_dir)
 
+    train_file = data_dir / args.train_file
+    valid_file = data_dir / args.valid_file
+
     # dataset
-    train_dataset = load_dataset("json", data_files={"train": args.train_file,}, split="train")
-    valid_dataset = load_dataset("json", data_files={"valid": args.valid_file,}, split="valid")
+    train_dataset = load_dataset("json", data_files={"train": train_file,}, split="train")
+    valid_dataset = load_dataset("json", data_files={"valid": valid_file,}, split="valid")
     print(f"train_dataset samples count: {len(train_dataset)}\n")
     print(f"train_dataset examples: \n")
     for sample in train_dataset.take(3):
@@ -95,11 +109,11 @@ def main():
     map_messages_to_text_ = partial(map_messages_to_text, tokenizer=tokenizer)
     train_dataset = train_dataset.map(
         map_messages_to_text_,
-        cache_file_name=(cache_dir / "train_dataset.cache").as_posix(),
+        cache_file_name=None if cache_dir is None else (cache_dir / "train_dataset.cache").as_posix(),
     )
     valid_dataset = valid_dataset.map(
         map_messages_to_text_,
-        cache_file_name=(cache_dir / "valid_dataset.cache").as_posix(),
+        cache_file_name=None if cache_dir is None else (cache_dir / "valid_dataset.cache").as_posix(),
     )
     print(f"mapped train_dataset examples: \n")
     for sample in train_dataset.take(3):
@@ -128,10 +142,6 @@ def main():
         loftq_config=None,
     )
 
-    callbacks = [
-        EarlyStoppingCallback(early_stopping_patience=5)
-    ]
-
     # train
     trainer = SFTTrainer(
         model=model,
@@ -141,23 +151,21 @@ def main():
         max_seq_length=args.max_seq_length,
         tokenizer=tokenizer,
         compute_metrics=None,
-        callbacks=callbacks,
         args=SFTConfig(
             output_dir=args.output_dir,
 
-            eval_strategy="steps",
+            eval_strategy="epoch",
 
-            per_device_train_batch_size=8,
-            per_device_eval_batch_size=8,
-            gradient_accumulation_steps=2,
-            eval_accumulation_steps=2,
+            per_device_train_batch_size=args.per_device_train_batch_size,
+            per_device_eval_batch_size=args.per_device_train_batch_size,
+            gradient_accumulation_steps=args.gradient_accumulation_steps,
+            eval_accumulation_steps=args.gradient_accumulation_steps,
             learning_rate=5e-5,
-            max_steps=args.max_steps,
+            num_train_epochs=args.num_train_epochs,
             warmup_steps=10,
-            logging_steps=args.eval_steps,
+            logging_strategy="epoch",
 
-            save_strategy="steps",
-            save_steps=args.eval_steps,
+            save_strategy="epoch",
             save_total_limit=10,
             save_safetensors=True,
 
@@ -165,9 +173,6 @@ def main():
             fp16=not is_bfloat16_supported(),
             bf16=is_bfloat16_supported(),
 
-            eval_steps=args.eval_steps,
-
-            load_best_model_at_end=True,
             optim="adamw_8bit",
         ),
     )
