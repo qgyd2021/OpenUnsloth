@@ -21,7 +21,7 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--talk_list_file",
-        default=(project_path / "data/nx_bot/talk_list.jsonl").as_posix(),
+        default=(project_path / "data/nx_bot/retrieval_list.jsonl").as_posix(),
         type=str
     )
     parser.add_argument(
