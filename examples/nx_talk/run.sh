@@ -31,6 +31,7 @@ pretrained_model_supplier=unsloth
 pretrained_model_name=Qwen2-1.5B-Instruct-bnb-4bit
 origin_model_name=$(echo $pretrained_model_name | sed 's/.\{9\}$//')
 echo "origin_model_name: ${origin_model_name}"
+exit 0
 
 data_file="../../data/nx_bot/talk_list.jsonl"
 
