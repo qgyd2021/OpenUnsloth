@@ -61,16 +61,20 @@ def main():
     # dataset
     train_dataset = load_dataset("json", data_files={"train": args.train_file,}, split="train")
     valid_dataset = load_dataset("json", data_files={"valid": args.valid_file,}, split="valid")
-    print(f"train_dataset samples count: {len(train_dataset)}")
-    print(f"train_dataset examples: ")
+    print(f"train_dataset samples count: {len(train_dataset)}\n")
+    print(f"train_dataset examples: \n")
     for sample in train_dataset.take(3):
         messages = sample["messages"]
-        print(f"\tprompt: {messages[0]['content']}, \tresponse: {messages[1]['content']}")
+        for message in messages:
+            print(f"\t{message['role']}: {message['content']}")
+        print("\n")
     print(f"valid_dataset samples count: {len(valid_dataset)}")
-    print(f"valid_dataset examples: ")
+    print(f"valid_dataset examples: \n")
     for sample in valid_dataset.take(3):
         messages = sample["messages"]
-        print(f"\tprompt: {messages[0]['content']}, \tresponse: {messages[1]['content']}")
+        for message in messages:
+            print(f"\t{message['role']}: {message['content']}")
+        print("\n")
     print("\n")
 
     # model
@@ -93,14 +97,14 @@ def main():
         map_messages_to_text_,
         cache_file_name=(cache_dir / "valid_dataset.cache").as_posix(),
     )
-    print(f"mapped train_dataset examples: ")
+    print(f"mapped train_dataset examples: \n")
     for sample in train_dataset.take(3):
         text = sample["text"]
-        print(f"\ttext: {text}")
-    print(f"mapped valid_dataset examples: ")
+        print(f"\ttext: {text}\n")
+    print(f"mapped valid_dataset examples: \n")
     for sample in valid_dataset.take(3):
         text = sample["text"]
-        print(f"\ttext: {text}")
+        print(f"\ttext: {text}\n")
     print("\n")
 
     model = FastLanguageModel.get_peft_model(
