@@ -3,7 +3,9 @@
 """
 https://www.kaggle.com/code/danielhanchen/kaggle-llama-3-1-8b-unsloth-notebook
 
-python3 step_3_inter_model.py --model_name output_dir/checkpoint-320
+python3 step_3_inter_model.py --model_name Qwen2-1.5B-Instruct-talk/checkpoint-100
+python3 step_3_inter_model.py --model_name Qwen2-0.5B-Instruct-talk/checkpoint-100
+python3 step_3_inter_model.py --model_name Meta-Llama-3.1-8B-Instruct-talk/checkpoint-100
 
 """
 import argparse

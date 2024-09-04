@@ -1,5 +1,12 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+"""
+python3 step_2_train_model.py --model_name unsloth/Qwen2-1.5B-Instruct-bnb-4bit --output_dir Qwen2-1.5B-Instruct-talk
+python3 step_2_train_model.py --model_name unsloth/Qwen2-0.5B-Instruct-bnb-4bit --output_dir Qwen2-0.5B-Instruct-talk
+python3 step_2_train_model.py --model_name unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit --output_dir Meta-Llama-3.1-8B-Instruct-talk
+
+
+"""
 import argparse
 from functools import partial
 import json
@@ -30,6 +37,8 @@ def get_args():
     parser.add_argument("--load_in_4bit", action="store_true", default=True)
 
     parser.add_argument("--num_train_epochs", default=10, type=int)
+    parser.add_argument("--per_device_train_batch_size", default=8, type=int)
+    parser.add_argument("--gradient_accumulation_steps", default=2, type=int)
 
     parser.add_argument("--data_dir", default="data_dir/", type=str)
     parser.add_argument("--cache_dir", default="cache_dir/", type=str)
@@ -140,10 +149,10 @@ def main():
 
             eval_strategy="epoch",
 
-            per_device_train_batch_size=8,
-            per_device_eval_batch_size=8,
-            gradient_accumulation_steps=2,
-            eval_accumulation_steps=2,
+            per_device_train_batch_size=args.per_device_train_batch_size,
+            per_device_eval_batch_size=args.per_device_train_batch_size,
+            gradient_accumulation_steps=args.gradient_accumulation_steps,
+            eval_accumulation_steps=args.gradient_accumulation_steps,
             learning_rate=5e-5,
             num_train_epochs=args.num_train_epochs,
             warmup_steps=10,
