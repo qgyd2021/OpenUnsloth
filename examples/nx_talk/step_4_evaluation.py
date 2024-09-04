@@ -4,9 +4,9 @@
 https://www.kaggle.com/code/danielhanchen/kaggle-llama-3-1-8b-unsloth-notebook
 https://huggingface.co/docs/transformers/v4.36.1/zh/llm_tutorial
 
-python3 step_4_evaluation.py --model_name unsloth/Qwen2-1.5B-Instruct-bnb-4bit --output_file data_dir/evaluation-epoch-0-talk-Qwen2-1.5B-Instruct.jsonl
-python3 step_4_evaluation.py --model_name Qwen2-1.5B-Instruct-talk-model/checkpoint-100 --output_file data_dir/evaluation-epoch-5-talk-Qwen2-1.5B-Instruct.jsonl
-python3 step_4_evaluation.py --model_name Qwen2-1.5B-Instruct-talk-model/checkpoint-200 --output_file data_dir/evaluation-epoch-10-talk-Qwen2-1.5B-Instruct.jsonl
+python3 step_4_evaluation.py --model_name unsloth/Qwen2-1.5B-Instruct-bnb-4bit --output_file talk-data_dir/evaluation-epoch-0-talk-Qwen2-1.5B-Instruct.jsonl
+python3 step_4_evaluation.py --model_name Qwen2-1.5B-Instruct-talk-model/checkpoint-100 --output_file talk-data_dir/evaluation-epoch-5-talk-Qwen2-1.5B-Instruct.jsonl
+python3 step_4_evaluation.py --model_name Qwen2-1.5B-Instruct-talk-model/checkpoint-200 --output_file talk-data_dir/evaluation-epoch-10-talk-Qwen2-1.5B-Instruct.jsonl
 
 python3 step_4_evaluation.py --model_name unsloth/Qwen2-0.5B-Instruct-bnb-4bit --output_file data_dir/evaluation-epoch-0-talk-Qwen2-0.5B-Instruct.jsonl
 python3 step_4_evaluation.py --model_name Qwen2-0.5B-Instruct-talk-model/checkpoint-100 --output_file data_dir/evaluation-epoch-5-talk-Qwen2-0.5B-Instruct.jsonl
@@ -37,8 +37,9 @@ from unsloth import FastLanguageModel
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--valid_file", default="data_dir/valid.jsonl", type=str)
-    parser.add_argument("--output_file", default="data_dir/evaluation.jsonl", type=str)
+    parser.add_argument("--valid_file", default="valid.jsonl", type=str)
+    parser.add_argument("--data_dir", default="data_dir/", type=str)
+    parser.add_argument("--output_file", default="evaluation.jsonl", type=str)
 
     parser.add_argument("--model_name", default="unsloth/Qwen2-1.5B-Instruct-bnb-4bit", type=str)
     parser.add_argument("--max_seq_length", default=2048, type=int)
@@ -53,6 +54,10 @@ def get_args():
 def main():
     args = get_args()
 
+    data_dir = Path(args.data_dir)
+    valid_file = data_dir / args.valid_file
+    output_file = data_dir / args.output_file
+
     print(f"loading model: {args.model_name}")
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=args.model_name,
@@ -63,7 +68,7 @@ def main():
     FastLanguageModel.for_inference(model)
     model: Qwen2Model = model
 
-    with open(args.valid_file, "r", encoding="utf-8") as fin, open(args.output_file, 'w', encoding="utf-8") as fout:
+    with open(valid_file, "r", encoding="utf-8") as fin, open(output_file, 'w', encoding="utf-8") as fout:
         for row in fin:
             row = json.loads(row)
             messages: List[dict] = row["messages"]
