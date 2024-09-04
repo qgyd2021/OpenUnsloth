@@ -3,7 +3,7 @@
 """
 https://www.kaggle.com/code/danielhanchen/kaggle-llama-3-1-8b-unsloth-notebook
 
-python3 step_4_evaluation.py --model_name outputs/checkpoint-10000
+python3 step_4_evaluation.py --model_name output_dir/checkpoint-300
 
 """
 import argparse
@@ -49,12 +49,9 @@ def main():
     )
     FastLanguageModel.for_inference(model)
 
-    with open(args.valid_file, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    print(f"valid dataset samples count: {len(data)}")
-
-    with open(args.evalation_file, 'w', encoding="utf-8") as f:
-        for row in data:
+    with open(args.valid_file, "r", encoding="utf-8") as fin, open(args.evalation_file, 'w', encoding="utf-8") as fout:
+        for row in fin:
+            row = json.loads(row)
             messages = row["messages"]
             text = tokenizer.apply_chat_template(
                 conversation=messages[:-1],
@@ -81,7 +78,7 @@ def main():
                 "messages": messages
             }
             row_ = json.dumps(row_, ensure_ascii=False)
-            f.write(f"{row_}\n")
+            fout.write(f"{row_}\n")
 
     return
 
