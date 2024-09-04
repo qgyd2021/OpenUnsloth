@@ -29,9 +29,6 @@ stop_stage=5
 
 pretrained_model_supplier=unsloth
 pretrained_model_name=Qwen2-1.5B-Instruct-bnb-4bit
-origin_model_name=$(echo $pretrained_model_name | sed 's/.\{9\}$//')
-echo "origin_model_name: ${origin_model_name}"
-exit 0
 
 data_file="../../data/nx_bot/talk_list.jsonl"
 
@@ -76,6 +73,10 @@ work_dir="$(pwd)"
 
 export PYTHONPATH="${work_dir}/../.."
 
+
+origin_model_name=$(echo $pretrained_model_name | sed 's/.\{9\}$//')
+echo "origin_model_name: ${origin_model_name}"
+exit 0
 
 if [ $system_version == "windows" ]; then
   alias python3='C:/Users/tianx/PycharmProjects/virtualenv/Transformers/Scripts/python.exe'
