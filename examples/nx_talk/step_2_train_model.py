@@ -13,7 +13,6 @@ sys.path.append(os.path.join(pwd, "../../"))
 
 from datasets import load_dataset
 from transformers.trainer_callback import EarlyStoppingCallback
-from transformers.trainer_utils import EvalPrediction
 from trl import SFTTrainer, SFTConfig
 from unsloth import FastLanguageModel
 from unsloth import is_bfloat16_supported
@@ -24,9 +23,9 @@ from project_settings import project_path
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--train_file", default="data_dir/train.jsonl", type=str)
-    parser.add_argument("--valid_file", default="data_dir/validation.jsonl", type=str)
+    parser.add_argument("--valid_file", default="data_dir/valid.jsonl", type=str)
 
-    parser.add_argument("--model_name", default="unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit", type=str)
+    parser.add_argument("--model_name", default="unsloth/Qwen2-1.5B-Instruct-bnb-4bit", type=str)
     parser.add_argument("--max_seq_length", default=2048, type=int)
     parser.add_argument("--load_in_4bit", action="store_true", default=True)
 
@@ -38,7 +37,6 @@ def get_args():
         default=None if platform.system() == "Windows" else os.cpu_count() // 2,
         type=str
     )
-
     args = parser.parse_args()
     return args
 
@@ -85,11 +83,6 @@ def main():
     print(f"model: \n{model}\n")
     print(f"tokenizer: \n{tokenizer}\n")
 
-    # index of choices
-    for token in ["A", "B", "C", "D", "E"]:
-        idx = tokenizer.__call__(token, add_special_tokens=False,)
-        print(f"token: {token}, index: {idx}")
-
     # map
     map_messages_to_text_ = partial(map_messages_to_text, tokenizer=tokenizer)
     train_dataset = train_dataset.map(
@@ -127,14 +120,6 @@ def main():
         loftq_config=None,
     )
 
-    # accuracy metric and cross entropy loss required.
-    def compute_metrics(eval_prediction: EvalPrediction):
-        predictions = eval_prediction.predictions
-        label_ids = eval_prediction.label_ids
-        print(f"predictions: {predictions}")
-        print(f"label_ids: {label_ids}")
-        return {}
-
     callbacks = [
         EarlyStoppingCallback(early_stopping_patience=5)
     ]
@@ -147,24 +132,24 @@ def main():
         dataset_text_field="text",
         max_seq_length=args.max_seq_length,
         tokenizer=tokenizer,
-        # compute_metrics=compute_metrics,
+        compute_metrics=None,
         callbacks=callbacks,
         args=SFTConfig(
             output_dir=args.output_dir,
 
             eval_strategy="steps",
 
-            per_device_train_batch_size=8,
-            per_device_eval_batch_size=8,
-            gradient_accumulation_steps=4,
-            eval_accumulation_steps=4,
+            per_device_train_batch_size=32,
+            per_device_eval_batch_size=32,
+            gradient_accumulation_steps=2,
+            eval_accumulation_steps=2,
             learning_rate=5e-5,
-            max_steps=1000,
+            max_steps=10000,
             warmup_steps=10,
-            logging_steps=20,
+            logging_steps=200,
 
             save_strategy="steps",
-            save_steps=20,
+            save_steps=200,
             save_total_limit=10,
             save_safetensors=True,
 
@@ -172,7 +157,7 @@ def main():
             fp16=not is_bfloat16_supported(),
             bf16=is_bfloat16_supported(),
 
-            eval_steps=20,
+            eval_steps=200,
 
             load_best_model_at_end=True,
             optim="adamw_8bit",
