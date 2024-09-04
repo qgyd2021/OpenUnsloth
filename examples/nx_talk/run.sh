@@ -5,11 +5,11 @@
 #! /bin/sh
 :<<COMMENT
 bash run.sh --stage 3 --stop_stage 3 --system_version ubuntu \
---pretrained_model_name Meta-Llama-3.1-8B-Instruct-bnb-4bit \
+--pretrained_model_name Qwen2-1.5B-Instruct-bnb-4bit \
 --data_file ../../data/nx_bot/talk_list.jsonl \
 --task_name talk
 
-bash run.sh --stage 1 --stop_stage 2 --system_version ubuntu \
+bash run.sh --stage 1 --stop_stage 1 --system_version ubuntu \
 --pretrained_model_name Qwen2-1.5B-Instruct-bnb-4bit \
 --data_file ../../data/nx_bot/retrieval_list.jsonl \
 --task_name retrieval
@@ -33,8 +33,6 @@ pretrained_model_name=Qwen2-1.5B-Instruct-bnb-4bit
 data_file="../../data/nx_bot/talk_list.jsonl"
 
 task_name="talk"
-
-data_dir="${task_name}-data_dir"
 
 
 # parse options
@@ -72,6 +70,9 @@ $verbose && echo "system_version: ${system_version}"
 work_dir="$(pwd)"
 
 export PYTHONPATH="${work_dir}/../.."
+
+data_dir="${work_dir}/${task_name}-data_dir"
+echo "data_dir: ${data_dir}"
 
 origin_model_name=$(echo $pretrained_model_name | sed 's/.\{9\}$//')
 echo "origin_model_name: ${origin_model_name}"
