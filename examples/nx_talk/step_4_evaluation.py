@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 https://www.kaggle.com/code/danielhanchen/kaggle-llama-3-1-8b-unsloth-notebook
+https://huggingface.co/docs/transformers/v4.36.1/zh/llm_tutorial
 
 python3 step_4_evaluation.py --model_name output_dir/checkpoint-300
 
@@ -72,10 +73,12 @@ def main():
                 input_ids=inputs.input_ids,
                 attention_mask=inputs.attention_mask,
                 max_new_tokens=256,
-                pad_token_id=tokenizer.eos_token_id
+                pad_token_id=tokenizer.eos_token_id,
+                skip_prompt=True,
             )
-            input_length = inputs.shape[1]
-            response = tokenizer.batch_decode(generate_ids[:, input_length:], skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
+            # input_length = inputs.shape[1]
+            # response = tokenizer.batch_decode(generate_ids[:, input_length:], skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
+            response = tokenizer.batch_decode(generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
             print(f"response: {response}")
 
             if messages[-1]["role"] == "user":
