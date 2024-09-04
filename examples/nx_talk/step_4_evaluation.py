@@ -74,7 +74,6 @@ def main():
                 attention_mask=inputs.attention_mask,
                 max_new_tokens=256,
                 pad_token_id=tokenizer.eos_token_id,
-                skip_prompt=True,
             )
             input_length = inputs.input_ids.shape[1]
             response = tokenizer.batch_decode(generate_ids[:, input_length:], skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
