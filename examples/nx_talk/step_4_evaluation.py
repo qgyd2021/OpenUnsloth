@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 import platform
 import sys
+from typing import List
 
 pwd = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(pwd, "../../"))
@@ -54,9 +55,9 @@ def main():
     with open(args.valid_file, "r", encoding="utf-8") as fin, open(args.output_file, 'w', encoding="utf-8") as fout:
         for row in fin:
             row = json.loads(row)
-            messages = row["messages"]
+            messages: List[dict] = row["messages"]
             text = tokenizer.apply_chat_template(
-                conversation=messages[:-1],
+                conversation=messages if messages[-1]["role"] == "user" else messages[:-1],
                 add_generation_prompt=True,
                 tokenize=False,
             )
@@ -76,7 +77,13 @@ def main():
             response = tokenizer.batch_decode(generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
             print(f"response: {response}")
 
-            messages[-1]["gen_content"] = response
+            if messages[-1]["role"] == "user":
+                messages.append({
+                    "role": "assistant",
+                    "content": response,
+                })
+            else:
+                messages[-1]["gen_content"] = response
             row_ = {
                 "messages": messages
             }
