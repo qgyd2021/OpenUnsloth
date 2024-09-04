@@ -9,12 +9,12 @@ bash run.sh --stage 3 --stop_stage 3 --system_version ubuntu \
 --data_file ../../data/nx_bot/talk_list.jsonl \
 --task_name talk
 
-bash run.sh --stage 3 --stop_stage 3 --system_version ubuntu \
---pretrained_model_name Qwen2-1.5B-Instruct-bnb-4bit \
+bash run.sh --stage 2 --stop_stage 3 --system_version ubuntu \
+--pretrained_model_name Meta-Llama-3.1-8B-Instruct-bnb-4bit \
 --data_file ../../data/nx_bot/retrieval_list.jsonl \
 --task_name retrieval
 
-bash run.sh --stage 1 --stop_stage 2 --system_version ubuntu \
+bash run.sh --stage 2 --stop_stage 3 --system_version ubuntu \
 --pretrained_model_name Qwen2-1.5B-Instruct-bnb-4bit \
 --data_file ../../data/nx_bot/judgment_list.jsonl \
 --task_name judgment
@@ -115,12 +115,12 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
   --data_dir "${data_dir}"
 
   python3 step_4_evaluation.py \
-  --model_name "${origin_model_name}-${task_name}-model/checkpoint-10" \
+  --model_name "${origin_model_name}-${task_name}-model/checkpoint-100" \
   --output_file "evaluation-epoch-5-${task_name}-${origin_model_name}.jsonl" \
   --data_dir "${data_dir}"
 
   python3 step_4_evaluation.py \
-  --model_name "${origin_model_name}-${task_name}-model/checkpoint-20" \
+  --model_name "${origin_model_name}-${task_name}-model/checkpoint-200" \
   --output_file "evaluation-epoch-10-${task_name}-${origin_model_name}.jsonl" \
   --data_dir "${data_dir}"
 
