@@ -74,7 +74,8 @@ def main():
                 max_new_tokens=256,
                 pad_token_id=tokenizer.eos_token_id
             )
-            response = tokenizer.batch_decode(generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
+            input_length = inputs.shape[1]
+            response = tokenizer.batch_decode(generate_ids[:, input_length:], skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
             print(f"response: {response}")
 
             if messages[-1]["role"] == "user":
