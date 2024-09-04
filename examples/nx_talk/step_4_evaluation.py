@@ -19,6 +19,7 @@ sys.path.append(os.path.join(pwd, "../../"))
 
 import torch
 from transformers import TextStreamer
+from transformers.models.qwen2.modeling_qwen2 import Qwen2Model
 from unsloth import FastLanguageModel
 
 
@@ -48,6 +49,7 @@ def main():
         load_in_4bit=args.load_in_4bit,
     )
     FastLanguageModel.for_inference(model)
+    model: Qwen2Model = model
 
     with open(args.valid_file, "r", encoding="utf-8") as fin, open(args.output_file, 'w', encoding="utf-8") as fout:
         for row in fin:
@@ -65,12 +67,13 @@ def main():
                 return_tensors="pt",
             ).to(args.device)
 
-            response = model.generate(
+            generate_ids = model.generate(
                 input_ids=inputs.input_ids,
                 attention_mask=inputs.attention_mask,
                 max_new_tokens=256,
                 pad_token_id=tokenizer.eos_token_id
             )
+            response = tokenizer.batch_decode(generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
             print(f"response: {response}")
 
             messages[-1]["gen_content"] = response
