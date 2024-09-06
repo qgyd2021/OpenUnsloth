@@ -145,9 +145,17 @@ def main():
     ]
 
     data_collator = DataCollatorForCompletionOnlyLM(
-        response_template="<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n",
+        response_template="assistant",
+        instruction_template="user",
         tokenizer=tokenizer
     )
+    print(f"data_collator: ")
+    print(f"data_collator.instruction_template: {data_collator.instruction_template}.")
+    print(f"data_collator.instruction_token_ids: {data_collator.instruction_token_ids}.")
+    print(f"data_collator.response_template: {data_collator.response_template}.")
+    print(f"data_collator.response_token_ids: {data_collator.response_token_ids}.")
+    print("\n")
+
     for sample in train_dataset.take(3):
         text = sample["text"]
         input_ids = tokenizer(text)
