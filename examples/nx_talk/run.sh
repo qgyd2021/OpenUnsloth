@@ -15,7 +15,7 @@ bash run.sh --stage 2 --stop_stage 3 --system_version ubuntu \
 --task_name retrieval
 
 bash run.sh --stage 2 --stop_stage 3 --system_version ubuntu \
---pretrained_model_name Qwen2-1.5B-Instruct-bnb-4bit \
+--pretrained_model_name Meta-Llama-3.1-8B-Instruct-bnb-4bit \
 --data_file ../../data/nx_bot/judgment_list.jsonl \
 --task_name judgment
 
