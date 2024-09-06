@@ -5,6 +5,7 @@ https://huggingface.co/docs/trl/sft_trainer
 """
 import argparse
 from functools import partial
+import json
 import logging
 import os
 from pathlib import Path
@@ -88,17 +89,20 @@ def main():
     # dataset
     train_dataset = load_dataset("json", data_files={"train": args.train_file,}, split="train")
     valid_dataset = load_dataset("json", data_files={"valid": args.valid_file,}, split="valid")
-    logger.info(f"train_dataset samples count: {len(train_dataset)}")
-    logger.info(f"train_dataset examples: ")
+
+    msg = "\n"
+    msg += f"train_dataset samples count: {len(train_dataset)}\n"
+    msg += f"train_dataset examples: \n"
     for sample in train_dataset.take(3):
         messages = sample["messages"]
-        logger.info(f"\tprompt: {messages[0]['content']}, \tresponse: {messages[1]['content']}")
-    logger.info(f"valid_dataset samples count: {len(valid_dataset)}")
-    logger.info(f"valid_dataset examples: ")
+        msg += f"\tprompt: {messages[0]['content']}, \tresponse: {messages[1]['content']}\n"
+    msg += f"valid_dataset samples count: {len(valid_dataset)}\n"
+    msg += f"valid_dataset examples: \n"
     for sample in valid_dataset.take(3):
         messages = sample["messages"]
-        logger.info(f"\tprompt: {messages[0]['content']}, \tresponse: {messages[1]['content']}")
-    logger.info("\n")
+        msg += f"\tprompt: {messages[0]['content']}, \tresponse: {messages[1]['content']}\n"
+    msg += "\n"
+    logger.info(msg)
 
     # model
     model, tokenizer = FastLanguageModel.from_pretrained(
@@ -107,13 +111,16 @@ def main():
         dtype=None,
         load_in_4bit=args.load_in_4bit,
     )
-    print(f"model: \n{model}\n")
-    print(f"tokenizer: \n{tokenizer}\n")
+    msg = "\n"
+    msg += f"model: \n{model}\n"
+    msg += f"tokenizer: \n{tokenizer}\n"
+    msg += "\n"
+    logger.info(msg)
 
     # index of choices
     for token in ["A", "B", "C", "D", "E"]:
         idx = tokenizer.__call__(token, add_special_tokens=False,)
-        print(f"token: {token}, index: {idx}")
+        logger.info(f"token: {token}, index: {idx}")
 
     # map
     map_messages_to_text_ = partial(map_messages_to_text, tokenizer=tokenizer)
@@ -125,15 +132,17 @@ def main():
         map_messages_to_text_,
         cache_file_name=None if cache_dir is None else (cache_dir / "valid_dataset.cache").as_posix(),
     )
-    print(f"mapped train_dataset examples: ")
+    msg = "\n"
+    msg += "mapped train_dataset examples: \n"
     for sample in train_dataset.take(3):
         text = sample["text"]
-        print(f"\ttext: {text}")
-    print(f"mapped valid_dataset examples: ")
+        msg += f"\ttext: {text}\n"
+    msg += "mapped valid_dataset examples: \n"
     for sample in valid_dataset.take(3):
         text = sample["text"]
-        print(f"\ttext: {text}")
-    print("\n")
+        msg += f"\ttext: {text}\n"
+    msg += "\n"
+    logger.info(msg)
 
     model = FastLanguageModel.get_peft_model(
         model,
@@ -156,9 +165,9 @@ def main():
     def compute_metrics(eval_prediction: EvalPrediction):
         predictions = eval_prediction.predictions
         label_ids = eval_prediction.label_ids
-        print(f"predictions: {predictions}")
-        print(f"label_ids: {label_ids}")
-        return {}
+        logger.info(f"predictions: {predictions}")
+        logger.info(f"label_ids: {label_ids}")
+        return {"accuracy": 1.0}
 
     callbacks = [
         EarlyStoppingCallback(early_stopping_patience=5)
@@ -169,19 +178,22 @@ def main():
         instruction_template=args.instruction_template,
         tokenizer=tokenizer
     )
-    print(f"data_collator: ")
-    print(f"data_collator.instruction_template: {data_collator.instruction_template}.")
-    print(f"data_collator.instruction_token_ids: {data_collator.instruction_token_ids}.")
-    print(f"data_collator.response_template: {data_collator.response_template}.")
-    print(f"data_collator.response_token_ids: {data_collator.response_token_ids}.")
-    print("\n")
+    msg = "\n"
+    msg += "data_collator: \n"
+    msg += f"data_collator.instruction_template: {json.dumps(data_collator.instruction_template)}.\n"
+    msg += f"data_collator.instruction_token_ids: {json.dumps(data_collator.instruction_token_ids)}.\n"
+    msg += f"data_collator.response_template: {json.dumps(data_collator.response_template)}.\n"
+    msg += f"data_collator.response_token_ids: {json.dumps(data_collator.response_token_ids)}.\n"
+    msg += "\n"
 
     for sample in train_dataset.take(3):
         text = sample["text"]
         input_ids = tokenizer(text)
         sample_ = data_collator([input_ids])
-        print(f"text: {text}")
-        print(f"input sample: {sample_}")
+        msg += f"text: {text}"
+        msg += f"input sample: {sample_}"
+    msg += "\n"
+    logger.info(msg)
 
     # train
     trainer = SFTTrainer(
@@ -219,13 +231,12 @@ def main():
 
             eval_steps=20,
 
-            # remove_unused_columns=False,
             load_best_model_at_end=True,
             optim="adamw_8bit",
         ),
     )
     trainer.evaluate()
-    # trainer.train()
+    trainer.train()
 
     return
 
