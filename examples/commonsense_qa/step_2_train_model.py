@@ -5,6 +5,7 @@ https://huggingface.co/docs/trl/sft_trainer
 """
 import argparse
 from functools import partial
+import logging
 import os
 from pathlib import Path
 import platform
@@ -20,6 +21,8 @@ from trl import SFTTrainer, SFTConfig
 from trl import DataCollatorForCompletionOnlyLM
 from unsloth import FastLanguageModel
 from unsloth import is_bfloat16_supported
+
+logger = logging.getLogger(__name__)
 
 
 def get_args():
@@ -68,6 +71,8 @@ def map_messages_to_text(sample: dict, tokenizer):
 def main():
     args = get_args()
 
+    logger.setLevel("INFO")
+
     cache_dir = None
     if args.cache_dir is not None:
         cache_dir = Path(args.cache_dir)
@@ -77,17 +82,17 @@ def main():
     # dataset
     train_dataset = load_dataset("json", data_files={"train": args.train_file,}, split="train")
     valid_dataset = load_dataset("json", data_files={"valid": args.valid_file,}, split="valid")
-    print(f"train_dataset samples count: {len(train_dataset)}")
-    print(f"train_dataset examples: ")
+    logger.info(f"train_dataset samples count: {len(train_dataset)}")
+    logger.info(f"train_dataset examples: ")
     for sample in train_dataset.take(3):
         messages = sample["messages"]
-        print(f"\tprompt: {messages[0]['content']}, \tresponse: {messages[1]['content']}")
-    print(f"valid_dataset samples count: {len(valid_dataset)}")
-    print(f"valid_dataset examples: ")
+        logger.info(f"\tprompt: {messages[0]['content']}, \tresponse: {messages[1]['content']}")
+    logger.info(f"valid_dataset samples count: {len(valid_dataset)}")
+    logger.info(f"valid_dataset examples: ")
     for sample in valid_dataset.take(3):
         messages = sample["messages"]
-        print(f"\tprompt: {messages[0]['content']}, \tresponse: {messages[1]['content']}")
-    print("\n")
+        logger.info(f"\tprompt: {messages[0]['content']}, \tresponse: {messages[1]['content']}")
+    logger.info("\n")
 
     # model
     model, tokenizer = FastLanguageModel.from_pretrained(
@@ -212,7 +217,7 @@ def main():
             optim="adamw_8bit",
         ),
     )
-    trainer.evaluate()
+    trainer.evaluate(valid_dataset)
     trainer.train()
 
     return
