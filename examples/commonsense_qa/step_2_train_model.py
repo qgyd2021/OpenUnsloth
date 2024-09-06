@@ -5,7 +5,6 @@ https://huggingface.co/docs/trl/sft_trainer
 """
 import argparse
 from functools import partial
-import json
 import os
 from pathlib import Path
 import platform
@@ -19,11 +18,8 @@ from transformers.trainer_callback import EarlyStoppingCallback
 from transformers.trainer_utils import EvalPrediction
 from trl import SFTTrainer, SFTConfig
 from trl import DataCollatorForCompletionOnlyLM
-
 from unsloth import FastLanguageModel
 from unsloth import is_bfloat16_supported
-
-from project_settings import project_path
 
 
 def get_args():
@@ -35,8 +31,19 @@ def get_args():
     parser.add_argument("--max_seq_length", default=2048, type=int)
     parser.add_argument("--load_in_4bit", action="store_true", default=True)
 
+    parser.add_argument(
+        "--instruction_template",
+        default="<|start_header_id|>user<|end_header_id|>\n\n",
+        type=str
+    )
+    parser.add_argument(
+        "--response_template",
+        default="<|start_header_id|>assistant<|end_header_id|>\n\n",
+        type=str
+    )
+
     parser.add_argument("--data_dir", default="data_dir/", type=str)
-    parser.add_argument("--cache_dir", default="cache_dir/", type=str)
+    parser.add_argument("--cache_dir", default=None, type=str)
     parser.add_argument("--output_dir", default="output_dir/", type=str)
     parser.add_argument(
         "--num_workers",
@@ -61,8 +68,10 @@ def map_messages_to_text(sample: dict, tokenizer):
 def main():
     args = get_args()
 
-    cache_dir = Path(args.cache_dir)
-    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_dir = None
+    if args.cache_dir is not None:
+        cache_dir = Path(args.cache_dir)
+        cache_dir.mkdir(parents=True, exist_ok=True)
     data_dir = Path(args.data_dir)
 
     # dataset
@@ -99,11 +108,11 @@ def main():
     map_messages_to_text_ = partial(map_messages_to_text, tokenizer=tokenizer)
     train_dataset = train_dataset.map(
         map_messages_to_text_,
-        cache_file_name=(cache_dir / "train_dataset.cache").as_posix(),
+        cache_file_name=None if cache_dir is None else (cache_dir / "train_dataset.cache").as_posix(),
     )
     valid_dataset = valid_dataset.map(
         map_messages_to_text_,
-        cache_file_name=(cache_dir / "valid_dataset.cache").as_posix(),
+        cache_file_name=None if cache_dir is None else (cache_dir / "valid_dataset.cache").as_posix(),
     )
     print(f"mapped train_dataset examples: ")
     for sample in train_dataset.take(3):
@@ -145,8 +154,8 @@ def main():
     ]
 
     data_collator = DataCollatorForCompletionOnlyLM(
-        response_template="<|start_header_id|>assistant<|end_header_id|>\n\n",
-        instruction_template="<|start_header_id|>user<|end_header_id|>\n\n",
+        response_template=args.instruction_template,
+        instruction_template=args.instruction_template,
         tokenizer=tokenizer
     )
     print(f"data_collator: ")
@@ -159,10 +168,9 @@ def main():
     for sample in train_dataset.take(3):
         text = sample["text"]
         input_ids = tokenizer(text)
-        print(f"text: {text}")
-        print(f"input_ids: {input_ids}")
         sample_ = data_collator([input_ids])
-        print(f"sample_: {sample_}")
+        print(f"text: {text}")
+        print(f"input sample: {sample_}")
 
     # train
     trainer = SFTTrainer(
