@@ -1,5 +1,8 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+"""
+https://huggingface.co/docs/trl/sft_trainer
+"""
 import argparse
 from functools import partial
 import json
@@ -15,6 +18,8 @@ from datasets import load_dataset
 from transformers.trainer_callback import EarlyStoppingCallback
 from transformers.trainer_utils import EvalPrediction
 from trl import SFTTrainer, SFTConfig
+from trl import DataCollatorForCompletionOnlyLM
+
 from unsloth import FastLanguageModel
 from unsloth import is_bfloat16_supported
 
@@ -139,9 +144,18 @@ def main():
         EarlyStoppingCallback(early_stopping_patience=5)
     ]
 
+    data_collator = DataCollatorForCompletionOnlyLM(
+        response_template="<|start_header_id|>assistant:",
+        instruction_template="<|start_header_id|>user:",
+        tokenizer=tokenizer
+    )
+    for batch in data_collator(train_dataset):
+        print(batch)
+
     # train
     trainer = SFTTrainer(
         model=model,
+        data_collator=data_collator,
         train_dataset=train_dataset,
         eval_dataset=valid_dataset,
         dataset_text_field="text",
