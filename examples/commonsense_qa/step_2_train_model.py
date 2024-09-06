@@ -181,7 +181,7 @@ def main():
         dataset_text_field="text",
         max_seq_length=args.max_seq_length,
         tokenizer=tokenizer,
-        # compute_metrics=compute_metrics,
+        compute_metrics=compute_metrics,
         callbacks=callbacks,
         args=SFTConfig(
             output_dir=args.output_dir,
