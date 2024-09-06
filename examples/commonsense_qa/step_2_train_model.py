@@ -145,8 +145,7 @@ def main():
     ]
 
     data_collator = DataCollatorForCompletionOnlyLM(
-        response_template="<|start_header_id|>assistant:",
-        instruction_template="<|start_header_id|>user:",
+        response_template="<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n",
         tokenizer=tokenizer
     )
     for sample in train_dataset.take(3):
@@ -155,7 +154,7 @@ def main():
         print(f"text: {text}")
         print(f"input_ids: {input_ids}")
         sample_ = data_collator([input_ids])
-        print(sample_)
+        print(f"sample_: {sample_}")
 
     # train
     trainer = SFTTrainer(
