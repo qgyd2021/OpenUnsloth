@@ -219,6 +219,7 @@ def main():
 
             eval_steps=20,
 
+            remove_unused_columns=False,
             load_best_model_at_end=True,
             optim="adamw_8bit",
         ),
