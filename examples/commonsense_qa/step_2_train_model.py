@@ -224,8 +224,8 @@ def main():
             optim="adamw_8bit",
         ),
     )
-    trainer.evaluate(valid_dataset)
-    trainer.train()
+    trainer.evaluate()
+    # trainer.train()
 
     return
 
