@@ -150,7 +150,7 @@ def main():
         tokenizer=tokenizer
     )
     for sample in train_dataset.take(3):
-        sample_ = data_collator(sample)
+        sample_ = data_collator([sample])
         print(sample_)
 
     # train
