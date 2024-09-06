@@ -77,7 +77,7 @@ def main():
         level=logging.INFO,  # if training_args.local_rank in [-1, 0] else logging.WARN,
         handlers=[logging.StreamHandler(sys.stdout)],
     )
-    logger.setLevel("INFO")
+    logger.setLevel(logging.INFO)
 
     cache_dir = None
     if args.cache_dir is not None:
