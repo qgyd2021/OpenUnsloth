@@ -150,7 +150,11 @@ def main():
         tokenizer=tokenizer
     )
     for sample in train_dataset.take(3):
-        sample_ = data_collator([sample])
+        text = sample["text"]
+        input_ids = tokenizer(text)
+        print(f"text: {text}")
+        print(f"input_ids: {input_ids}")
+        sample_ = data_collator([input_ids])
         print(sample_)
 
     # train
