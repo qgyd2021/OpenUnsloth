@@ -145,8 +145,8 @@ def main():
     ]
 
     data_collator = DataCollatorForCompletionOnlyLM(
-        response_template="assistant<|end_header_id|>",
-        instruction_template="user<|end_header_id|>",
+        response_template="assistant<|end_header_id|>\n\n",
+        instruction_template="user<|end_header_id|>\n\n",
         tokenizer=tokenizer
     )
     print(f"data_collator: ")
